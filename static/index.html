@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Свадебное приглашение</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="background-circle top"></div>
+<div class="background-circle bottom"></div>
+
+<div class="card">
+
+    <div class="date">
+
+        <div class="day">07</div>
+
+        <div class="month">
+            ноября 2026
+        </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <h1>
+        Артем
+        <span>&</span>
+        Ирина
+    </h1>
+
+    <p class="invite">
+
+        С огромной радостью приглашаем вас разделить
+        с нами самый счастливый день нашей жизни.
+
+    </p>
+
+    <div class="divider"></div>
+
+    <h2 id="familyTitle">
+        Дорогие гости
+    </h2>
+
+    <div id="guestList"></div>
+
+    <button id="sendButton">
+        Подтвердить присутствие
+    </button>
+
+</div>
+
+<script>
+
+const families = {
+
+    1:{
+        title:"Дорогие Александр, Ксения, Вовчик, Мишутка и Александр!",
+        guests:[
+            "Александр",
+            "Ксения",
+            "Вовчик",
+            "Мишутка",
+            "Александр (сын)"
+        ]
+    },
+
+    2:{
+        title:"Дорогие Сергей и Анастасия!",
+        guests:[
+            "Сергей",
+            "Анастасия"
+        ]
+    },
+
+    3:{
+        title:"Дорогие Ольга, Александр, Тимофей и Мария!",
+        guests:[
+            "Ольга",
+            "Александр",
+            "Тимофей",
+            "Мария"
+        ]
+    }
+
+};
+
+const params=new URLSearchParams(location.search);
+
+const id=params.get("id") || "1";
+
+const family=families[id];
+
+document.getElementById("familyTitle").innerHTML=family.title;
+
+const guestList=document.getElementById("guestList");
+
+const checked={};
+
+family.guests.forEach(name=>{
+
+    checked[name]=false;
+
+    const row=document.createElement("label");
+
+    row.className="guest";
+
+    row.innerHTML=`
+        <span>${name}</span>
+        <input type="checkbox">
+        <div class="checkmark"></div>
+    `;
+
+    const checkbox=row.querySelector("input");
+
+    checkbox.onchange=()=>{
+
+        checked[name]=checkbox.checked;
+
+    };
+
+    guestList.appendChild(row);
+
+});
+
+document.getElementById("sendButton").onclick=()=>{
+
+fetch("/confirm",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+family:family.title,
+
+guests:checked
+
+})
+
+})
+
+.then(r=>r.json())
+
+.then(()=>{
+
+document.getElementById("sendButton").innerHTML="Спасибо ❤️";
+
+document.getElementById("sendButton").disabled=true;
+
+});
+
+};
+
+</script>
+
+</body>
+</html>
